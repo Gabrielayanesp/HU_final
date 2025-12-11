@@ -3,6 +3,7 @@ package com.ticketera.infrastructure.adapters.out.jpa.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.ToString;
 import java.time.LocalDate;
 
 @Entity
@@ -26,8 +27,9 @@ public class EventEntity {
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate startDate;
 
-    // Relación con VenueEntity
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "venue_id")
+    // TASK 1: Relación ManyToOne optimizada (FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "venue_id", nullable = false)
+    @ToString.Exclude
     private VenueEntity venue;
 }

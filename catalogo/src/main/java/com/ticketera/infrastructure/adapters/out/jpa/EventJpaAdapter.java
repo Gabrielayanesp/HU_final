@@ -8,6 +8,9 @@ import com.ticketera.infrastructure.adapters.out.jpa.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class EventJpaAdapter implements EventRepositoryPort {
@@ -17,18 +20,27 @@ public class EventJpaAdapter implements EventRepositoryPort {
 
     @Override
     public Event save(Event event) {
-        // 1. Convertir Dominio -> Entidad
         EventEntity entity = eventMapper.toEntity(event);
-
-        // 2. Guardar en H2 usando JPA
         EventEntity savedEntity = eventRepository.save(entity);
-
-        // 3. Convertir Entidad guardada -> Dominio
         return eventMapper.toDomain(savedEntity);
     }
 
     @Override
     public boolean existsByName(String name) {
         return eventRepository.existsByName(name);
+    }
+
+    @Override
+    public List<Event> findAll() {
+        return eventRepository.findAllWithVenue().stream() // Usamos el método JOIN FETCH
+                .map(eventMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Event> findByCity(String city) {
+        return eventRepository.findByCity(city).stream()
+                .map(eventMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }
