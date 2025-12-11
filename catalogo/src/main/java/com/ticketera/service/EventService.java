@@ -1,43 +1,45 @@
 package com.ticketera.service;
 
-import com.ticketera.dto.EventDTO;
+import com.ticketera.entity.EventEntity;
 import com.ticketera.repository.EventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class EventService {
 
-    private final EventRepository eventRepository;
+    @Autowired
+    private EventRepository eventRepository;
 
-    public EventService(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
+    // Task 3: Obtener eventos con paginación y filtro opcional
+    public Page<EventEntity> getAllEvents(Pageable pageable, String category) {
+        if (category != null && !category.isEmpty()) {
+            return eventRepository.findByCategory(category, pageable);
+        }
+        return eventRepository.findAll(pageable);
     }
 
-    public List<EventDTO> getAllEvents() {
-        return eventRepository.findAll();
+    // Task 1 y 2: Guardar con validación de duplicados
+    public EventEntity createEvent(EventEntity event) {
+        if (eventRepository.existsByName(event.getName())) {
+            throw new IllegalArgumentException("Ya existe un evento con el nombre: " + event.getName());
+        }
+        return eventRepository.save(event);
     }
 
-    public Optional<EventDTO> getEventById(Long id) {
+    public Optional<EventEntity> getEventById(Long id) {
         return eventRepository.findById(id);
     }
 
-    public EventDTO createEvent(EventDTO eventDTO) {
-        return eventRepository.save(eventDTO);
-    }
-
-    public Optional<EventDTO> updateEvent(Long id, EventDTO eventDetails) {
-        return eventRepository.findById(id).map(existingEvent -> {
-            existingEvent.setName(eventDetails.getName());
-            existingEvent.setDescription(eventDetails.getDescription());
-            existingEvent.setVenueId(eventDetails.getVenueId());
-            return eventRepository.save(existingEvent);
-        });
-    }
-
-    public boolean deleteEvent(Long id) {
-        return eventRepository.deleteById(id);
+    public void deleteEvent(Long id) {
+        if (!eventRepository.existsById(id)) {
+            // Esto lanzará una excepción que podrías capturar o dejar que retorne vacío.
+            // Para este ejercicio simple, solo borramos si existe.
+        }
+        eventRepository.deleteById(id);
     }
 }

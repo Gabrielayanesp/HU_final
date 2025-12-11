@@ -1,62 +1,43 @@
 package com.ticketera.controller;
 
-import com.ticketera.dto.EventDTO;
+import com.ticketera.entity.EventEntity;
 import com.ticketera.service.EventService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/events")
-@Tag(name = "Eventos", description = "Gestión del catálogo de eventos")
 public class EventController {
 
-    private final EventService eventService;
+    @Autowired
+    private EventService eventService;
 
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
+    // Task 3: Endpoint con paginación y filtros
+    // Ejemplo de uso: GET /events?page=0&size=5&sort=name,asc&category=Musica
+    @GetMapping
+    public ResponseEntity<Page<EventEntity>> getAllEvents(
+            @PageableDefault(size = 10, sort = "startDate") Pageable pageable,
+            @RequestParam(required = false) String category) {
+
+        return ResponseEntity.ok(eventService.getAllEvents(pageable, category));
     }
 
-    @GetMapping
-    @Operation(summary = "Listar eventos", description = "Obtiene todos los eventos registrados")
-    public ResponseEntity<List<EventDTO>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    // Task 2: Creación con @Valid
+    @PostMapping
+    public ResponseEntity<EventEntity> createEvent(@Valid @RequestBody EventEntity event) {
+        return new ResponseEntity<>(eventService.createEvent(event), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar evento", description = "Obtiene un evento por su ID")
-    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
+    public ResponseEntity<EventEntity> getEvent(@PathVariable Long id) {
         return eventService.getEventById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // Manejo de 404
-    }
-
-    @PostMapping
-    @Operation(summary = "Crear evento", description = "Crea un nuevo evento en el catálogo")
-    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventDTO eventDTO) {
-        EventDTO createdEvent = eventService.createEvent(eventDTO);
-        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Actualizar evento", description = "Actualiza la información de un evento existente")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @Valid @RequestBody EventDTO eventDTO) {
-        return eventService.updateEvent(id, eventDTO)
-                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar evento", description = "Elimina un evento del catálogo")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        if (eventService.deleteEvent(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
     }
 }
