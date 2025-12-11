@@ -3,8 +3,11 @@ package com.ticketera.aplicacion.usecase;
 import com.ticketera.dominio.model.Event;
 import com.ticketera.dominio.ports.in.CreateEventUseCase;
 import com.ticketera.dominio.ports.out.EventRepositoryPort;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
+@Transactional
 public class EventUseCaseImpl implements CreateEventUseCase {
 
     private final EventRepositoryPort eventRepositoryPort;
@@ -22,11 +25,13 @@ public class EventUseCaseImpl implements CreateEventUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> getAllEvents() {
         return eventRepositoryPort.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> getEventsByCity(String city) {
         return eventRepositoryPort.findByCity(city);
     }
