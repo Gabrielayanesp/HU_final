@@ -1,4 +1,4 @@
-package com.ticketera.entity;
+package com.ticketera.infrastructure.adapters.out.jpa.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Table(name = "venues")
 public class VenueEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

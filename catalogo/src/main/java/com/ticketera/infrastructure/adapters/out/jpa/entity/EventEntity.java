@@ -1,4 +1,4 @@
-package com.ticketera.entity;
+package com.ticketera.infrastructure.adapters.out.jpa.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -14,7 +14,6 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Task 2: Validaciones y Task 1: Constraint único
     @Column(unique = true, nullable = false)
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 3, message = "El nombre debe tener al menos 3 caracteres")
@@ -27,7 +26,7 @@ public class EventEntity {
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate startDate;
 
-    // Relación con Venue
+    // Relación con VenueEntity
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "venue_id")
     private VenueEntity venue;
