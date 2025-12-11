@@ -104,3 +104,5 @@ You can test these endpoints using **Postman** or **Swagger** (if enabled).
 URL: http://localhost:8080/events?page=0&size=5&sort=name,asc
 
 ## 👤 Author
+Maria Gabriela Yanes
+Clan: Cienaga - JAVA
